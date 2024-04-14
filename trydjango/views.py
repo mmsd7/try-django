@@ -1,15 +1,16 @@
 from django.http import HttpResponse
 import random
+from articles.models import Article
 
 def home_view(request):
-    name = 'Yousuf'
-    number = random.randint(1, 5000)
+
+    article_obj = Article.objects.get(id=random.randint(1,4))
     
     H_STRING = f"""
-    <h1> Hello {name}- Here is the number: {number}</h1>
+    <h1> Hello {article_obj.title}- : {article_obj.content} (ID: {article_obj.id})</h1>
     """
     P_STRING = f"""
-    <p> Hello {name}- Here is the number: {number}</p>
+    <p> Hello {article_obj.title}-  {article_obj.content}</p>
     """
     
     HTML_STRING = H_STRING + P_STRING
