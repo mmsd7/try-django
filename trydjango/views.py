@@ -3,7 +3,7 @@ from django.template.loader import render_to_string
 import random
 from articles.models import Article
 
-def home_view(request):
+def home_view(request, *args, **kwargs):
 
     article_obj = Article.objects.get(id=random.randint(1,4))
     article_queryset = Article.objects.all()

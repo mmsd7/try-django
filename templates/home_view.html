@@ -10,7 +10,7 @@
     {% for x in object_list %}
         {% if x.title %}    
             <li> 
-                <a href="/article/{{ x.id }}/"> {{ x.title }} - {{ x.content }} </a> 
+                <a href="/articles/{{ x.id }}/"> {{ x.title }} - {{ x.content }} </a> 
             </li>
         {% endif %}
     {% endfor %}
