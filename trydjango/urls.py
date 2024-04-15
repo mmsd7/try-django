@@ -6,6 +6,7 @@ from articles.views import article_search_view
 from articles.views import article_create_view
 
 from accounts.views import login_view
+from accounts.views import logout_view
 
 
 urlpatterns = [
@@ -15,4 +16,5 @@ urlpatterns = [
     path('articles/<int:id>/', article_detail_view),
     path('admin/', admin.site.urls),
     path('login/', login_view ),
+    path('logout/', logout_view),
 ]
