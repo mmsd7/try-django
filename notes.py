@@ -1,77 +1,41 @@
-# 29. Register a user via built-in model form
-# In accounts.views.py impoft UserCreationForm
+# 30. Login via django authentication form
+# Import authenticationForm
+# Here is the login_view in accounts.views.py
+def login_view(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        print(username, password)
+        user = authenticate(request, username= username, password = password)
+        if user is None:
+            context = {"error": 'Invalid username or password.'}
+            return render (request, 'accounts/login.html', context=context)
+        login(request, user)
+        return redirect('/')
+    return render(request, 'accounts/login.html', {})
 
-def register_view(request):
-    form = UserCreationForm(request.POST or None)
-    if form.is_valid():
-        user_obj= form.save()
-        return redirect('/login')
-    context['form'] = {'form': form}
+# Change the code like the following
 
-    return render (request, 'accounts/register.html', context = context)
+def login_view(request):
+    if request.method == 'POST':
+        form = authenticationForm(request, data = request.POST)
+        if form.is_valid():
+            user = form.get_user() #It's special for his particular form
+            login(request, user)
+            return redirect('/')
+        else:
+            form = authenticationForm(request)
+        return render(request, 'accounts/login.html', {})
 
-
-
-# Add url
-
-# remote the register_view functio
-
-# Is the user already registerd
-# Create the register.html like below
-{% extends 'base.html' %}
-
-
-{% block content %}
-
-{% if request.user.is_authenticated %}
-<div>
-    <form action="" method="POST"> {% csrf_token %}
-        {{ form.as_p }}
-        <p>Already have an account? Please <a href="/login"> login </a></p>
-        <button type="submit">Yes, Log out.</button>
-    </form>
-
-
-</div>
-{% else %}
-    <p> You are already logged in. Would you like to <a href="/logout/"> logout? </a> </p>
-{% endif %}
-
-
-{% endblock content %}
-
-
-# Change the login.html like below
-{% extends 'base.html' %}
-
-
-{% block content %}
-
-{% if not request.user.is_authenticated %}
-<div>
-    <form action="" method="POST"> {% csrf_token %}
-        {% if error %}
-            <p style="color: red;">{{ error }}</p>
-        {% endif %}
-
-        <input type="text" name="username" placeholder="username">
-        <input type="password" name="password">
-        <button type="submit">Login</button>
-        
-        
-        
-    </form>
-
-    <p>Need an account? Please <a href="/register"></a> Register</a></p>
-
-</div>
-{% else %}
-    <p> You are already logged in. Would you like to <a href="/logout/"> logout? </a> </p>
-{% endif %}
-
-
-{% endblock content %}
-
-
-
-
+# Check! 
+def login_view(request):
+    if request.method == 'POST':
+        form = authenticationForm(request, data = request.POST)
+        if form.is_valid():
+            user = form.get_user() #It's special for his particular form
+            login(request, user)
+            return redirect('/')
+        else:
+            form = authenticationForm(request)
+        context = {'form':form}
+        return render(request, 'accounts/login.html', context =  context)
