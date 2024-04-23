@@ -1,5 +1,5 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import Http404
 from articles.models import Article
 from .forms import ArticleForm
@@ -28,6 +28,8 @@ def article_create_view(request):
     if form.is_valid():
         article_obj =  form.save()
         context['form'] = ArticleForm()
+        # return redirect(article_obj.get_absolute_url())
+        return redirect('article-detail', slug=article_obj.slug)
     return render (request, 'articles/create.html', context=context)
 
 
@@ -47,3 +49,4 @@ def article_detail_view(request, slug=None):
         'object': article_obj,
     }
     return render(request, 'articles/detail.html', context =  context)
+    
