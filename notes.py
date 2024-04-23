@@ -1,144 +1,83 @@
-# 45 - Django URLs Reverse
+# 46 - Complex Search using Django Q Lookups
+# articles.models
+def article_search_view(request):
+    query_dict = request.GET
+    try:
+        query = int(query_dict.get('q'))
+    except:
+        query=None
+    article_obj= None
+    if query is not None:
+        article_obj = Article.objects.get(id=query)
+    context = {'object':article_obj}
+    return render(request, 'articles/search.html', context=context)
+    # ===============================
+# Change this
+def article_search_view(request):
+    query_dict = request.GET
+    try:
+        query = int(query_dict.get('q'))
+    except:
+        query=None
+    qs= Article.objects.all()
+    if query is not None:
+        qs = Article.objects.filter(title__icontains=query)
+    context = {'object_list': qs}
+    return render(request, 'articles/search.html', context=context)
 
-# ====================================
-# Add name
-urlpatterns = [
-    path('', home_view),
-    path('articles/', article_search_view),
-    path('articles/create/', article_create_view, name="article-create"),
-    path('articles/<slug:slug>/', article_detail_view, name="article-detail"),
-    path('admin/', admin.site.urls),
-    path('login/', login_view ),
-    path('logout/', logout_view),
-    path('register/', register_view),
-]
+    # search.html
+    {% extends 'base.html' %}
 
-# Import reverse in aritcles.modles
-# articles.models.py
-    def get_absolute_url(self):
-        # return f'/articles/{self.slug}/' #MD
-        return reverse(article-create) #ADD
-# Check! It's not a dynamic URL
+    {% block content %}
 
-
-# ====================================
-# articles.models.py
-    def get_absolute_url(self):
-        # return f'/articles/{self.slug}/' 
-        return reverse(article-detail)
-# Check! It should display no arguments
-# ====================================
-# articles.models.py
-    def get_absolute_url(self):
-        # return f'/articles/{self.slug}/' 
-        return reverse(article-detail, kwargs={"slug":self.slug}) #md
-        # (this KYE "SLUG" is related to URL_Patterns)
-# Check! It will works
-# ====================================
-# home-view.html
+    {% if object %}
+    <h1>{{ object.title }}</h1>
+    <p>{{ object.content }}</p>
+    {% endif %}
+    {% endblock %}
+# Change this
 {% extends 'base.html' %}
+
 {% block content %}
-<h1>{{ object.title }} ({{ object.id }})</h1>
-<p> {{ object.content }} </p>
-<ul>
-    {% for x in object_list %}
-        {% if x.title %}    
-            <li> 
-                <a href="{{ x.get_absolute_url }}"> {{ x.title }} - {{ x.content }} </a> 
-            </li>
-            </li>
+    {% for object in object_list %}
+        {% if object.title %}
+            <h1>{{ object.title }}</h1>
+            <p>{{ object.content }}</p>
+            <p>{{ object.get_absolute_url }}</p>
         {% endif %}
     {% endfor %}
-</ul>
 {% endblock %}
-# ====================================
-# Let's change this
+# Search Somtethint. It will serach in title only
+# ============================================
 {% extends 'base.html' %}
-{% block content %}
-<h1>{{ object.title }} ({{ object.id }})</h1>
-<p> {{ object.content }} </p>
-<ul>
-    {% for x in object_list %}
-        {% if x.title %}    
-            <li> 
-                <a href="{% url 'article-create' %}"> {{ x.title }} - {{ x.content }} </a> #md 
-            </li>
-            </li>
-        {% endif %}
-    {% endfor %}
-</ul>
-{% endblock %}
-# Check! It will works
-# ====================================
-{% extends 'base.html' %}
-{% block content %}
-<h1>{{ object.title }} ({{ object.id }})</h1>
-<p> {{ object.content }} </p>
-<a href="{% url 'article-create' %}">Create Article</a> #add
-<a href="{% url 'article-detail' slug=hello-world %}">Hello World Article</a> #add
-<ul>
-    {% for x in object_list %}
-        {% if x.title %}    
-            <li> 
-                <a href="{% url 'article-detail' slug=x.slug %}"> {{ x.title }} - {{ x.content }} </a> #md 
-            </li>
-            </li>
-        {% endif %}
-    {% endfor %}
-</ul>
-{% endblock %}
-# Check! It will works
-# ====================================
-# THIS IS NOT A GOOD PRACTICE. Rather do the following
-# ===================================
-{% extends 'base.html' %}
-{% block content %}
-<h1>{{ object.title }} ({{ object.id }})</h1>
-<p> {{ object.content }} </p>
-<a href="{% url 'article-create' %}">Create Article</a>
-<a href="{% url 'article-detail' 'slug=hello-world' %}">Hello World Article</a> 
-<ul>
-    {% for x in object_list %}
-        {% if x.title %}    
-            <li> 
-                <a href="{{ x.get_absolute_url }}> {{ x.title }} - {{ x.content }} </a> #md 
-            </li>
-            </li>
-        {% endif %}
-    {% endfor %}
-</ul>
-{% endblock %}
-# Check. It should work
-# ====================================
-# Navigate to article_create_view
-# Import redirect
-@login_required
-def article_create_view(request):
-    form = ArticleForm(request.POST or None)
-    context = {
-        'form' :  form
-    }
-    
-    if form.is_valid():
-        article_obj =  form.save()
-        context['form'] = ArticleForm()
-        redirect(article_obj.get_absolute_url()) #NA
-        # redirect('article-datail', slug=article_obj.slug) #NA, It also works
-    return render (request, 'articles/create.html', context=context)
-# Create an article and try
-# ====================================
 
-@login_required
-def article_create_view(request):
-    form = ArticleForm(request.POST or None)
-    context = {
-        'form' :  form
-    }
-    
-    if form.is_valid():
-        article_obj =  form.save()
-        context['form'] = ArticleForm()
-        redirect(article_obj.get_absolute_url())
-        # redirect(article_obj.get_absolute_url()) #NA
-        # redirect('article-datail', slug=article_obj.slug) #NA, It also works
-    return render (request, 'articles/create.html', context=context)
+{% block content %}
+    </ul>
+        {% for object in object_list %}
+            {% if object.title %}
+            <li><a href="{{ object.get_absolute_url }}">{{ object.title }}</a></li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+{% endblock %}
+# Check this
+# ============================================
+# import Q from djang.db.model
+def article_search_view(request):
+    query = request.GET.get(q)
+    qs= Article.objects.all()
+    if query is not None:
+        lookups= Q(title__icontains=query)
+        qs = Article.objects.filter(lookups)
+    context = {'object_list': qs}
+    return render(request, 'articles/search.html', context=context)
+# Check this with different search query
+# ============================================
+def article_search_view(request):
+    query = request.GET.get(q)
+    qs= Article.objects.all()
+    if query is not None:
+        lookups= Q(title__icontains=query) | Q(content__icontains=query)
+        qs = Article.objects.filter(lookups)
+    context = {'object_list': qs}
+    return render(request, 'articles/search.html', context=context)
